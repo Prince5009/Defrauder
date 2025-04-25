@@ -1,0 +1,81 @@
+/* Ensure Sidebar Fills the Height */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Make Sidebar Stretch from Top to Bottom */
+.sidebar-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    flex-grow: 1;
+    padding-top: 20px;
+    background-color: #f1f1f1 !important; /* Light Grey */
+}
+
+/* Sidebar and Header Hover & Active Effects */
+.sidebar-item, .header-item {
+    transition: background-color 0.3s ease-in-out;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+/* Hover Effect */
+.sidebar-item:hover, .header-item:hover {
+    background-color: #ffcccc !important; /* Light Red */
+    color: black !important; /* Ensure text remains readable */
+}
+
+/* Active Sidebar Item */
+.sidebar-item.active {
+    background-color: #ffaaaa !important; /* Slightly Darker Red */
+    font-weight: bold;
+    border-left: 5px solid red;
+}
+
+/* Ensure Main Content Takes Remaining Space */
+.content-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+/* Light background for Main Content */
+body {
+    background-color: #f8f9fa; /* Light Off-White */
+}
+
+/* Header Background (Cyan) */
+.bg-info {
+    background-color: #17a2b8 !important; /* Cyan */
+}
+
+/* Navbar Text */
+.navbar .text-white {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Sidebar List Items */
+.list-group-item a {
+    display: block;
+    font-size: 18px;
+    color: black;
+}
+
+/* Footer Styling */
+.footer {
+    background-color: #17a2b8 !important; /* Cyan like Header */
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
