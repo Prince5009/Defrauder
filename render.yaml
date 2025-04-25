@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: laravel-api
+    env: python
+    buildCommand: |
+      cd laravel_api
+      pip install -r requirements.txt
+    startCommand: |
+      cd laravel_api
+      gunicorn laravel_api.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: laravel_api.settings
+    plan: free
