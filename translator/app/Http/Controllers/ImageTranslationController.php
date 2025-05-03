@@ -25,7 +25,7 @@ class ImageTranslationController extends Controller
                 'image',
                 file_get_contents($request->file('image')->getRealPath()),
                 $request->file('image')->getClientOriginalName()
-            )->post('http://127.0.0.1:8001/api/extract-word/');
+            )->post('http://69.62.77.164:8000/api/extract-word/');
 
             $data = $response->json();
 

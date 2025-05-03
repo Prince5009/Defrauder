@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!ct&lr7&3lrjh!gms$30&jun9b&0swqhh5^*0$z82t__=ve^3+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']  # For development, allow all hosts
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'speech_api',
     'image_pdf',
     'video_trimmer',
+    'QR',
 ]
 
 MIDDLEWARE = [

@@ -9,6 +9,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ImageTranslationController;
 use App\Http\Controllers\VideoToAudioController;
+use App\Http\Controllers\QRController;
+use App\Http\Controllers\VerificationController;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Http\Request;
 
 // Additional Controllers for new modules
 use App\Http\Controllers\WordToPdfController;
@@ -21,6 +25,8 @@ use App\Http\Controllers\PlagiarismController;
 use App\Http\Controllers\ImageToGhibliController;
 use App\Http\Controllers\AudioToTextController;
 use App\Http\Controllers\AudioTranscriptionController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\AdminController;
 
 // Video to Audio routes
 Route::get('/video', [VideoToAudioController::class, 'index'])->name('video.index');
@@ -35,13 +41,52 @@ Route::post('/extract-text', [ImageTranslationController::class, 'extractText'])
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'registerUser'])->name('register.user');
 
+// Email Verification Routes
+Route::get('/email/verify/{id}', [VerificationController::class, 'verify'])->name('verification.verify');
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+// Password Reset Routes
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password');
+})->middleware('guest')->name('password.request');
+
+Route::post('/forgot-password', function (Request $request) {
+    $request->validate(['email' => 'required|email']);
+ 
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+ 
+    return $status === Password::RESET_LINK_SENT
+        ? back()->with(['status' => __($status)])
+        : back()->withErrors(['email' => __($status)]);
+})->middleware('guest')->name('password.email');
+
+Route::get('/reset-password/{token}', [VerificationController::class, 'showResetForm'])
+    ->middleware('guest')
+    ->name('password.reset');
+
+Route::post('/reset-password', [VerificationController::class, 'resetPassword'])
+    ->middleware('guest')
+    ->name('password.update');
+
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Admin routes (outside auth middleware)
+Route::prefix('admin')->group(function () {
+    Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
+    Route::post('/login', [AdminController::class, 'authenticate'])->name('admin.authenticate');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+});
+
 // All routes that require authentication
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     // Base navigation views
     Route::get('/text', fn () => view('text'))->name('text');
     Route::get('/pdf', fn () => view('pdf'))->name('pdf');
@@ -56,11 +101,6 @@ Route::middleware(['auth'])->group(function () {
     // PDF Translation
     Route::post('/translate-pdf', [PdfTranslateController::class, 'translate'])->name('translate.pdf');
 
-    // Word to PDF
-    Route::get('/wordtopdf', [WordToPdfController::class, 'index'])->name('wordtopdf');
-    Route::post('/convert-wordtopdf', [WordToPdfController::class, 'convert'])->name('convert.wordtopdf');
-    Route::get('/download-pdf/{filename}', [WordToPdfController::class, 'download'])->name('download.pdf');
-
     // PDF to Word
     Route::get('/pdftoword', [PdfToWordController::class, 'index'])->name('pdftoword');
     Route::post('/convert-pdftoword', [PdfToWordController::class, 'convert'])->name('convert.pdftoword');
@@ -72,10 +112,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/convert', [MergePdfController::class, 'convert'])->name('convert');
         Route::get('/download/{filename}', [MergePdfController::class, 'download'])->name('download');
     });
-
-    // Images to PDF
-    Route::get('/imagestopdf', [ImagesToPdfController::class, 'index'])->name('imagestopdf');
-    Route::post('/convert-imagestopdf', [ImagesToPdfController::class, 'convert'])->name('convert.imagestopdf');
 
     // Audio to Text
     Route::get('/audiototext', [AudioToTextController::class, 'index'])->name('audiototext');
@@ -99,4 +135,48 @@ Route::middleware(['auth'])->group(function () {
     // Audio Transcription
     Route::get('/audio', [AudioTranscriptionController::class, 'index'])->name('audio.index');
     Route::post('/audio/transcribe', [AudioTranscriptionController::class, 'transcribe'])->name('audio.transcribe');
+
+    // QR Code routes
+    Route::get('/qr', [QRController::class, 'index'])->name('qr.index');
+    Route::post('/qr/generate', [QRController::class, 'generate'])->name('qr.generate');
+
+    // Feedback routes
+    Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+
+    // History page
+    Route::get('/history', function () {
+        return view('history');
+    })->name('history');
+
+    // Test email route
+    Route::get('/test-email', function () {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return 'No authenticated user found';
+            }
+
+            $emailData = [
+                'user' => $user,
+                'message' => "Test email message",
+                'timestamp' => now()->format('Y-m-d H:i:s')
+            ];
+
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\MotivationEmail($emailData));
+            
+            return 'Email sent successfully to: ' . $user->email;
+        } catch (\Exception $e) {
+            return 'Error: ' . $e->getMessage();
+        }
+    });
+
+    // Images to PDF (change to singular)
+    Route::get('/imagetopdf', [ImagesToPdfController::class, 'index'])->name('imagetopdf');
+    Route::post('/convert-imagestopdf', [ImagesToPdfController::class, 'convert'])->name('convert.imagestopdf');
+});
+
+// Redirect /imagestopdf (plural) to /imagetopdf (singular)
+Route::get('/imagestopdf', function() {
+    return redirect('/imagetopdf');
 });

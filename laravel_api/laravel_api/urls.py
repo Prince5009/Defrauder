@@ -16,5 +16,5 @@ urlpatterns = [
     path('api/speech/', include('speech_api.urls')),
     path('api/imagepdf/', include('image_pdf.urls')),
     path('video/',include('video_trimmer.urls')),
-
+    path('qr/', include('QR.urls')),
 ]

@@ -29,7 +29,7 @@ class TextTranslateController extends Controller
             // Map the short language code to full name
             $fullLanguage = $this->languageMap[$request->language];
 
-            $response = Http::post('http://127.0.0.1:8001/text/translate/', [
+            $response = Http::post('http://69.62.77.164:8000/text/translate/', [
                 'text' => $request->text,
                 'language' => $fullLanguage // Send full language name to API
             ]);

@@ -24,7 +24,7 @@ class ImageToGhibliController extends Controller
         // Send image to FastAPI backend
         $response = Http::attach(
             'image', file_get_contents($image), $image->getClientOriginalName()
-        )->post('http://127.0.0.1:8001/image-ghibli/conversion/');
+        )->post('http://69.62.77.164:8000/image-ghibli/conversion/');
 
         // Handle response
         if ($response->successful()) {

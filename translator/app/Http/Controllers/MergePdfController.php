@@ -38,7 +38,7 @@ class MergePdfController extends Controller
             $response = Http::timeout(300)
                 ->attach('pdfs', fopen($file1->getRealPath(), 'r'), $file1->getClientOriginalName())
                 ->attach('pdfs', fopen($file2->getRealPath(), 'r'), $file2->getClientOriginalName())
-                ->post('http://127.0.0.1:8001/pdf-to-pdf/merge/');
+                ->post('http://69.62.77.164:8000/pdf-to-pdf/merge/');
 
             if ($response->successful()) {
                 // Get the PDF content from the response
@@ -93,33 +93,20 @@ class MergePdfController extends Controller
     public function download($filename)
     {
         try {
-            $filePath = storage_path('app/public/merged/' . $filename);
-            
-            if (!file_exists($filePath)) {
-                Log::error('File not found: ' . $filePath);
-                return redirect()->back()->with('error', 'File not found.');
+            // Directly fetch the file from the API and stream to user
+            $response = Http::timeout(60)->get('http://69.62.77.164:8000/api/mergepdf/download/' . $filename);
+            if ($response->successful()) {
+                return response($response->body())
+                    ->header('Content-Type', $response->header('Content-Type') ?? 'application/pdf')
+                    ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
             }
-            
-            // Record the download in database
-            DownloadedContent::create([
-                'user_id' => Auth::id(),
-                'original_filename' => session('original_filenames', 'unknown.pdf'),
-                'converted_file' => $filename,
-                'downloaded_at' => now()
-            ]);
-            
-            Log::info('Downloading file: ' . $filePath);
-            
-            // Return the file as a download response
-            return response()->download($filePath, $filename, [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-                'Content-Length' => filesize($filePath)
-            ]);
-            
+            return back()->with('error', 'File not found or could not be downloaded.');
         } catch (\Exception $e) {
-            Log::error('Download error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to download file: ' . $e->getMessage());
+            \Log::error('Download error:', [
+                'message' => $e->getMessage(),
+                'file' => $filename
+            ]);
+            return back()->with('error', 'Failed to download file: ' . $e->getMessage());
         }
     }
 }

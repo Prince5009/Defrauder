@@ -40,7 +40,7 @@ class ImagesToPdfController extends Controller
             }
 
             // Make the API call
-            $apiResponse = $response->post('http://127.0.0.1:8001/api/imagepdf/pdf/');
+            $apiResponse = $response->post('http://69.62.77.164:8000/api/imagepdf/pdf/');
 
             if ($apiResponse->successful()) {
                 return response($apiResponse->body(), 200)

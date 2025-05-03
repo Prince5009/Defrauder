@@ -45,7 +45,7 @@ class PlagiarismController extends Controller
                 'pdf2',
                 file_get_contents($pdf2->getRealPath()),
                 $pdf2->getClientOriginalName()
-            )->post('http://127.0.0.1:8001/detect/check-plagiarism/');
+            )->post('http://69.62.77.164:8000/detect/check-plagiarism/');
 
             // Log the response for debugging
             Log::info('Plagiarism API Response', [

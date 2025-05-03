@@ -2,9 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Plagiarism Result</title>
+    <title>Plagiarism Result - OneSolution</title>
 </head>
 <body>
+    <div style="text-align:center; margin-bottom: 20px;">
+        <img src="{{ asset('images/OneSolution.jpg') }}" alt="OneSolution Logo" style="height: 48px; border-radius: 8px; vertical-align: middle;">
+        <span style="font-size: 2rem; font-weight: bold; color: #dc3545; margin-left: 10px; vertical-align: middle;">OneSolution</span>
+    </div>
     <h2>Hello {{ $data['user']->name }},</h2>
 
     <p>Here are your plagiarism check results:</p>
@@ -39,6 +43,6 @@
     </p>
     
 
-    <p>Thank you for using our service.</p>
+    <p>Thank you for using <b>OneSolution</b>.</p>
 </body>
 </html>

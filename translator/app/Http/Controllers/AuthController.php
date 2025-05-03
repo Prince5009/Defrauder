@@ -25,6 +25,13 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            
+            if (!$user->hasVerifiedEmail()) {
+                Auth::logout();
+                return redirect()->route('verification.notice')
+                    ->with('warning', 'Please verify your email address before logging in.');
+            }
+
             return redirect()->route('home')->with('success', 'Welcome, ' . $user->name);
         }
 

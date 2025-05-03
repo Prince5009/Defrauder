@@ -24,7 +24,7 @@ class AudioToTextController extends Controller
             $response = Http::withoutVerifying()
                 ->timeout(300)
                 ->attach('file', file_get_contents($file->path()), $file->getClientOriginalName())
-                ->post('http://127.0.0.1:8001/api/speech/text/');
+                ->post('http://69.62.77.164:8000/api/speech/text/');
 
             return $response->json();
             

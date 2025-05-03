@@ -21,7 +21,7 @@ class TextSummaryController extends Controller
                 'percent' => 'required|integer|min:1|max:99',
             ]);
 
-            $response = Http::post('http://127.0.0.1:8001/text-summarize/content/', [
+            $response = Http::post('http://69.62.77.164:8000/text-summarize/content/', [
                 'text' => $request->text,
                 'percent' => $request->percent
             ]);

@@ -43,7 +43,7 @@ class PdfToWordController extends Controller
                 'file', // The key should match what the API expects
                 file_get_contents($pdfFile->getRealPath()),
                 $pdfFile->getClientOriginalName()
-            )->post('http://127.0.0.1:8001/pdf-to-word/convert/');
+            )->post('http://69.62.77.164:8000/pdf-to-word/convert/');
 
             // Log the API response for debugging
             Log::info('API Response:', [
@@ -89,20 +89,16 @@ class PdfToWordController extends Controller
     public function download($filename)
     {
         try {
-            if (Storage::disk('public')->exists('converted/' . $filename)) {
-                // Record the download
-                DownloadedContent::create([
-                    'user_id' => Auth::id(),
-                    'original_filename' => session('pdf_original_filename', 'unknown.pdf'),
-                    'converted_file' => $filename,
-                    'downloaded_at' => now()
-                ]);
-
-                return Storage::disk('public')->download('converted/' . $filename);
+            // Directly fetch the file from the API and stream to user
+            $response = Http::timeout(60)->get('http://69.62.77.164:8000/api/pdftoword/download/' . $filename);
+            if ($response->successful()) {
+                return response($response->body())
+                    ->header('Content-Type', $response->header('Content-Type') ?? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+                    ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
             }
-            return back()->with('error', 'File not found.');
+            return back()->with('error', 'File not found or could not be downloaded.');
         } catch (\Exception $e) {
-            Log::error('Download Error:', [
+            \Log::error('Download Error:', [
                 'message' => $e->getMessage(),
                 'file' => $filename
             ]);

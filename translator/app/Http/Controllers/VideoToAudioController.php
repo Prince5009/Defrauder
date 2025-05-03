@@ -35,7 +35,7 @@ class VideoToAudioController extends Controller
                 'video', 
                 file_get_contents($video->getRealPath()), 
                 $video->getClientOriginalName()
-            )->post('http://127.0.0.1:8001/api/audio/extract/');
+            )->post('http://69.62.77.164:8000/api/audio/extract/');
 
             Log::info('API Response received', [
                 'status' => $response->status(),
@@ -84,7 +84,7 @@ class VideoToAudioController extends Controller
         try {
             Log::info('Attempting to download audio file', ['filename' => $filename]);
             
-            $response = Http::get("http://127.0.0.1:8001/api/audio/download/{$filename}");
+            $response = Http::timeout(60)->get("http://69.62.77.164:8000/api/audio/download/{$filename}");
             
             Log::info('Download response received', [
                 'status' => $response->status(),
